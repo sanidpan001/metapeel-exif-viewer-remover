@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetaPeel — EXIF Viewer and Remover | See & Strip Photo Metadata</title>
+<meta name="description" content="MetaPeel is a free EXIF viewer and remover. Inspect make, model, date and GPS hidden in your JPEG photos, then strip metadata in one click by re-encoding — privately, in your browser.">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Space Grotesk',sans-serif;background:#18181b;color:#e4e4e7}
+.mono{font-family:'IBM Plex Mono',monospace}
+.panel{background:#27272a;border:1px solid #3f3f46;border-radius:1rem}
+.lime{color:#a3e635}.limebg{background:#a3e635}
+.dropzone{border:2px dashed #52525b;border-radius:1rem;transition:.2s}
+.dropzone.drag{border-color:#a3e635;background:#27272a}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #a3e635;outline-offset:2px}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is EXIF data in a photo?","acceptedAnswer":{"@type":"Answer","text":"EXIF is metadata stored inside JPEG and other image files by cameras and phones. It can include the device make and model, the date and time the photo was taken, software used to edit it, and — if location was enabled — precise GPS coordinates of where the photo was taken."}},{"@type":"Question","name":"How does MetaPeel remove metadata from a photo?","acceptedAnswer":{"@type":"Answer","text":"MetaPeel decodes your photo in your browser and re-encodes only the visible pixels onto a fresh canvas. Metadata segments such as EXIF, GPS and camera details are not part of the pixels, so they are left behind. The cleaned image you download contains the picture without the original metadata block."}},{"@type":"Question","name":"Are my photos uploaded to a server?","acceptedAnswer":{"@type":"Answer","text":"No. Everything happens locally in your browser. Your files are never uploaded, stored or sent to any server, which is why MetaPeel works well for private, legal, journalistic and family photos you would not want to hand to an unknown service."}},{"@type":"Question","name":"Does removing EXIF data reduce photo quality?","acceptedAnswer":{"@type":"Answer","text":"Re-encoding a JPEG applies a new round of compression, so there can be a very small quality change at default settings. The visual difference is normally imperceptible. If you need a pixel-perfect archive, keep your original master copy privately and share only the cleaned copy."}},{"@type":"Question","name":"Can MetaPeel read GPS from every photo?","acceptedAnswer":{"@type":"Answer","text":"MetaPeel reads GPS whenever a JPEG contains GPS EXIF tags. If a photo has no GPS tags — for example because location was off, or a messaging app already stripped it — MetaPeel will clearly say no location was found instead of guessing."}},{"@type":"Question","name":"Can I strip metadata from many photos at once?","acceptedAnswer":{"@type":"Answer","text":"Yes. Use the Batch Strip panel to select multiple images at once. MetaPeel re-encodes each one in your browser and gives you a cleaned download for every file, so you can prepare a whole folder of photos for publishing in one pass."}}]}
+</script>
+</head>
+<body id="top">
+<header class="sticky top-0 z-50 bg-[#18181b]/95 backdrop-blur border-b border-zinc-700">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <a href="#top" class="flex items-center gap-2 font-bold text-xl tracking-tight"><span class="limebg text-zinc-900 rounded-lg w-9 h-9 grid place-items-center text-lg" aria-hidden="true">◍</span> Meta<span class="lime">Peel</span></a>
+    <nav class="flex items-center gap-2 sm:gap-4 text-sm">
+      <a href="#top" class="px-3 py-2 rounded-lg hover:bg-zinc-800">Home</a>
+      <a href="https://fixoraa.tech" class="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-600">More Tools</a>
+    </nav>
+  </div>
+</header>
+<main class="mx-auto max-w-6xl px-4 sm:px-6">
+  <section class="pt-8 pb-2 text-center sm:text-left">
+    <span class="inline-block text-xs font-semibold tracking-widest uppercase bg-lime-400/15 text-lime-300 border border-lime-400/30 rounded-full px-3 py-1">Unlimited Free Usage · No signup · No watermark</span>
+    <h1 class="text-4xl sm:text-5xl font-bold mt-4 leading-tight">EXIF Viewer <span class="lime">&amp;</span> Remover</h1>
+    <p class="text-zinc-400 mt-3 max-w-2xl text-base sm:text-lg">Your photos carry a hidden diary — camera, clock and coordinates. Open it, read it, then peel it off before you share. Everything runs in this browser tab; no photo ever leaves your device.</p>
+  </section>
+</main>
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pt-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <div class="origin-top scale-[0.44] sm:scale-100 shrink-0">
+        <script>
+          atOptions = { 'key' : '4e68ac77881c17fe128a46565d9a4e8c', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+        </script>
+        <script src="https://www.highrevenueformat.com/4e68ac77881c17fe128a46565d9a4e8c/invoke.js"></script>
+      </div>
+    </div>
+  </div>
+</div>
+<main class="mx-auto max-w-6xl px-4 sm:px-6 pb-6">
+  <!-- PRIVACY CONSOLE -->
+  <section class="panel mt-4 overflow-hidden" aria-label="EXIF privacy console">
+    <div class="flex items-center justify-between px-4 sm:px-5 py-3 bg-zinc-900 border-b border-zinc-700">
+      <div class="mono text-xs sm:text-sm text-zinc-300"><span class="text-lime-400">●</span> metapeel — privacy console <span class="text-zinc-500">/ inspect → assess → strip</span></div>
+      <div id="riskBadge" class="mono text-xs px-2.5 py-1 rounded-full bg-zinc-700 text-zinc-200">NO FILE LOADED</div>
+    </div>
+    <div class="grid lg:grid-cols-5 gap-0">
+      <div class="lg:col-span-2 p-4 sm:p-5 border-b lg:border-b-0 lg:border-r border-zinc-700">
+        <div id="dropZone" class="dropzone p-6 text-center cursor-pointer" tabindex="0" role="button" aria-label="Choose or drop a photo">
+          <div class="text-4xl" aria-hidden="true">🕵️</div>
+          <p class="font-semibold mt-2">Drop a JPEG photo here</p>
+          <p class="text-sm text-zinc-400 mt-1">or tap to browse. PNG &amp; WebP can be stripped too — EXIF reading is JPEG-first.</p>
+          <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp,image/*" class="hidden">
+        </div>
+        <p id="statusMsg" class="mono text-xs text-zinc-400 mt-3" role="status">Waiting for a photo. Nothing is uploaded — parsing happens on your device.</p>
+        <div id="previewWrap" class="hidden mt-4">
+          <img id="previewImg" alt="Preview of the selected photo" class="w-full rounded-xl border border-zinc-600 max-h-72 object-contain bg-zinc-900">
+          <p id="fileMeta" class="mono text-xs text-zinc-400 mt-2 break-all"></p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 mt-5">
+          <button id="stripBtn" disabled class="limebg text-zinc-900 font-bold px-5 py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:brightness-110 flex-1">🧹 Strip metadata — 1 click</button>
+          <a id="downloadClean" href="#" download class="hidden text-center px-5 py-3 rounded-xl border border-lime-400 text-lime-300 font-semibold hover:bg-lime-400/10">⬇ Download cleaned</a>
+        </div>
+        <p id="cleanNote" class="text-xs text-zinc-500 mt-2"></p>
+      </div>
+      <div class="lg:col-span-3 p-4 sm:p-5">
+        <h2 class="font-bold text-lg">What this photo is carrying</h2>
+        <div id="emptyState" class="mt-4 rounded-xl bg-zinc-900 border border-zinc-700 p-5 text-zinc-400 text-sm">No metadata to show yet. Load a photo and MetaPeel will list its make, model, timestamps, lens, dimensions and GPS — exactly as a stranger receiving the original file could read them.</div>
+        <div class="overflow-x-auto mt-3">
+          <table class="w-full text-sm mono" aria-label="EXIF metadata table">
+            <thead><tr class="text-left text-zinc-400 border-b border-zinc-700"><th class="py-2 pr-3 font-medium">Field</th><th class="py-2 font-medium">Value found in file</th></tr></thead>
+            <tbody id="exifBody"></tbody>
+          </table>
+        </div>
+        <div id="gpsPanel" class="hidden mt-4 rounded-xl border border-lime-400/40 bg-lime-400/10 p-4">
+          <p class="font-semibold text-lime-300">📍 GPS location found</p>
+          <p id="gpsText" class="mono text-sm mt-1"></p>
+          <a id="mapLink" href="#" target="_blank" rel="noopener" class="inline-block mt-2 text-sm underline text-lime-300">Open this location on a map →</a>
+          <p class="text-xs text-zinc-400 mt-2">This is the uncomfortable part: anyone with the original file gets this link too — a marketplace buyer, a forum stranger, anyone.</p>
+        </div>
+        <div id="findingsBox" class="hidden mt-4">
+          <h3 class="font-semibold text-sm tracking-wide uppercase text-zinc-300">Privacy findings</h3>
+          <ul id="findingsList" class="list-disc pl-5 mt-2 space-y-1 text-sm text-zinc-300"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BATCH -->
+  <section class="panel mt-6 p-4 sm:p-6" aria-label="Batch metadata strip">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div><h2 class="font-bold text-xl">Batch strip — a whole set, one pass</h2>
+      <p class="text-zinc-400 text-sm mt-1 max-w-xl">Publishing a listing, a portfolio or a press pack? Select many images at once; each is re-encoded clean, ready to download one by one.</p></div>
+      <label class="limebg text-zinc-900 font-bold px-4 py-2.5 rounded-xl cursor-pointer hover:brightness-110 text-sm">+ Add images<input id="batchInput" type="file" accept="image/*" multiple class="hidden"></label>
+    </div>
+    <div class="flex flex-wrap gap-3 mt-4">
+      <button id="batchStripBtn" disabled class="px-5 py-2.5 rounded-xl bg-zinc-100 text-zinc-900 font-semibold disabled:opacity-40 disabled:cursor-not-allowed">Strip all</button>
+      <button id="batchClearBtn" class="px-5 py-2.5 rounded-xl border border-zinc-500 hover:bg-zinc-700">Clear batch</button>
+      <span id="batchStatus" class="mono text-xs text-zinc-400 self-center" role="status">No batch files yet.</span>
+    </div>
+    <ul id="batchList" class="mt-4 space-y-2 text-sm"></ul>
+  </section>
+
+  <!-- EXPLAINER -->
+  <section class="mt-8" aria-label="What your photo reveals">
+    <h2 class="font-bold text-2xl">What your photo reveals — before you post it</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      <div class="panel p-5"><div class="text-2xl">📍</div><h3 class="font-bold mt-2">Where you were</h3><p class="text-sm text-zinc-400 mt-1">GPS tags can place a photo within a few metres — your home, your child's school, a hotel room — long after the moment has passed.</p></div>
+      <div class="panel p-5"><div class="text-2xl">🕐</div><h3 class="font-bold mt-2">When it happened</h3><p class="text-sm text-zinc-400 mt-1">Original timestamps reveal routines: when the house is empty, when you travel, when a “live” photo was actually taken days earlier.</p></div>
+      <div class="panel p-5"><div class="text-2xl">📱</div><h3 class="font-bold mt-2">What you own</h3><p class="text-sm text-zinc-400 mt-1">Make, model and lens data advertise the value of your kit — useful targeting information for theft and for scams.</p></div>
+      <div class="panel p-5"><div class="text-2xl">✍️</div><h3 class="font-bold mt-2">Who made it</h3><p class="text-sm text-zinc-400 mt-1">Artist, copyright and software fields can expose a legal name, an employer workflow, or the editing tools behind an “unedited” claim.</p></div>
+    </div>
+  </section>
+</main>
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pb-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <script async src="https://js.wpadmngr.com/static/adManager.js" data-admpid="464498"></script>
+    </div>
+  </div>
+</div>
+<main class="mx-auto max-w-4xl px-4 sm:px-6 pb-10">
+<article class="prose-article">
+<h2 class="text-3xl font-bold mt-6">EXIF, Explained Honestly: What Photo Metadata Is, Why It Matters, and How to Remove It</h2>
+<p class="text-zinc-300 mt-4 leading-relaxed">Every digital photograph is really two things at once. The first is the picture you see: the pixels, the light, the faces, the room. The second is a quiet block of structured text travelling inside the same file, describing how, when, where and with what that picture was made. That second layer is called metadata, and its most common form in photography is EXIF — Exchangeable Image File Format. MetaPeel exists because most people share the first layer on purpose and the second layer entirely by accident. This guide explains what EXIF contains, when it helps you, when it quietly works against you, and how removing it by re-encoding — the method MetaPeel uses — actually works.</p>
+<h3 class="text-xl font-bold mt-6">What a camera writes into your photo</h3>
+<p class="text-zinc-300 mt-3 leading-relaxed">The moment you press the shutter, your phone or camera assembles a small dossier. It records the manufacturer and the exact model of the device. It records the date and time, often in more than one field: the time the file was modified, the time the photo was originally captured, and the time it was digitised. It records technical settings such as exposure, aperture, focal length and ISO, the orientation the sensor was held in, the pixel dimensions of the image, and sometimes the name of the lens attached to the camera. If location services were switched on, it adds GPS coordinates — latitude, longitude and sometimes altitude — precise enough to identify a single building. Many devices and editing programs add still more: a software name and version, an artist field that may contain the owner's name, a copyright line, and a unique serial number for the camera body.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">None of this is visible when you look at the photograph. Open the image in a gallery and you see a birthday, a beach or a product listing. Open the same file in an EXIF viewer and you see the dossier. That gap between what a sender thinks they shared and what a receiver can actually read is the entire privacy problem in one sentence. A photo posted to sell a bicycle can carry the coordinates of the seller's garage. A cheerful holiday picture sent to a group chat can record the empty house it was sent from, days before the family returns. A journalist's source photograph can carry a device model and a timestamp that narrow down who took it far more than anyone intended.</p>
+<h3 class="text-xl font-bold mt-6">When metadata is genuinely useful</h3>
+<p class="text-zinc-300 mt-3 leading-relaxed">It would be dishonest to call EXIF a villain. Photographers rely on it constantly. Reviewing the aperture, shutter speed and ISO stored with a shot is how beginners learn why one frame worked and another blurred. Photo libraries sort and search by capture date, and that date comes from EXIF, not from the file system. Archivists, insurers and courts use timestamps and device records as part of verifying that an image is what it claims to be. Geotagged photographs help researchers map wildlife sightings, document construction progress and verify the location of damage after a storm. If you are organising your own private archive, you should absolutely keep your original files, metadata and all, stored safely at home.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">The problem is not that metadata exists. The problem is that it travels by default. The copy you keep and the copy you publish do not need to be the same file. Keeping a rich, fully documented master for yourself while sharing a cleaned copy with the world gives you both benefits at once: a searchable private archive and a public image that says only what the picture itself says. That separation — master at home, cleaned copy in public — is the habit MetaPeel is built to support, and it takes about five seconds per photo once it becomes routine.</p>
+<h3 class="text-xl font-bold mt-6">What different platforms do — and do not — strip for you</h3>
+<p class="text-zinc-300 mt-3 leading-relaxed">A common and dangerous assumption is that the internet cleans photos automatically. The truth is a patchwork. Several large social networks do strip most EXIF data from images displayed on their own pages, which is genuinely good practice — but that protection ends at their borders. The same photo sent as a file attachment in email, shared through a file-transfer link, uploaded to a marketplace, a forum, a dating app, a classifieds site or your own website usually keeps its metadata completely intact. Anyone who downloads the original file receives the full dossier with it.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">Messaging apps complicate things further. Some compress and clean photos sent one way, yet deliver untouched originals when the same image is sent as a document or file. Cloud backup links shared with “anyone with the link” frequently serve the pristine original. Even well-meaning colleagues create leaks: a marketing team strips images for the website, then a salesperson emails the originals from a phone. Because you cannot audit every path a file might take after it leaves you, the only reliable control point is the file itself, before it leaves. Strip first, then share through whatever channel you like — the cleaned file stays cleaned everywhere it goes.</p>
+<h3 class="text-xl font-bold mt-6">How stripping by re-encoding works</h3>
+<p class="text-zinc-300 mt-3 leading-relaxed">There are two broad ways to remove metadata. The first is surgical editing: open the file, find each metadata segment and delete or rewrite it, leaving the compressed pixel data untouched. Done well, this is lossless, but it requires carefully handling many container formats and tag types. The second way — the one MetaPeel uses — is re-encoding. The browser decodes your photo into raw pixels, draws those pixels onto a fresh canvas, and encodes a brand-new image file from the pixels alone. Metadata is not pixel data, so none of it is carried across. EXIF, GPS, camera serials, editing history and embedded thumbnails all stay behind in the original, which never leaves your device.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">Re-encoding has honest trade-offs that you should know about. Encoding a JPEG again applies compression again, so a cleaned JPEG is not bit-identical to its source; at a sensible quality setting the visual difference is imperceptible in ordinary use, but a professional archiving a master file should keep the untouched original privately — which, as discussed, is the recommended habit anyway. Re-encoding also flattens some things you might occasionally want, such as colour-profile nuances in specialist print workflows. For the overwhelmingly common job — preparing photos for websites, listings, messages, applications and publication — a cleaned re-encode is exactly the right output: it looks the same, and it reveals nothing beyond the image.</p>
+<h3 class="text-xl font-bold mt-6">A practical routine for safer sharing</h3>
+<p class="text-zinc-300 mt-3 leading-relaxed">Start by building the inspection habit. Before sharing a sensitive photo, drop it into MetaPeel and actually read what it carries. Most people are startled exactly once — usually by a map link pointing at their own front door — and never forget afterwards. Pay special attention to photos taken at home, at a child's school or activities, at a workplace with visible screens or documents, and of anything you are selling from your address. Those four categories account for most real-world metadata leaks.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">Next, strip before the share, not after. Use the single-photo strip for one-offs and the batch strip when you are preparing a set: a property listing, a marketplace bundle, a portfolio update, a press pack or a school newsletter gallery. Download the cleaned copies into a clearly named folder so cleaned and original files never get mixed up — a file named with the “-clean” suffix, which MetaPeel adds automatically, makes the distinction obvious at a glance. Then share only from the cleaned folder. If a platform later asks for “the original”, treat that as a deliberate decision, not a default.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">Finally, fix the source settings where you can. On most phones you can disable location tagging for the camera, or grant location only while using the app. That prevents future GPS tags at the source. It does nothing for the thousands of photos already sitting in your library with coordinates inside them — for those, inspection and stripping remain necessary — but together, a changed setting plus a cleaning habit closes both the past and the future sides of the problem.</p>
+<h3 class="text-xl font-bold mt-6">Special cases worth knowing about</h3>
+<p class="text-zinc-300 mt-3 leading-relaxed">Screenshots are a different animal: they usually contain little or no EXIF data, but they can visually contain far more sensitive information — notifications, names, account numbers — than any metadata block. Clean the metadata, by all means, but also look at the picture. Edited photos deserve a thought as well: some editors preserve original EXIF through an export, others rewrite it, and a few embed an edit history. The only way to know what an exported file carries is to view it, which takes seconds. Live-photo and motion formats bundle a small video alongside the still; sharing the still as a cleaned JPEG avoids sending that extra footage along unnoticed. And remember that stripping is one-directional: once a cleaned copy is published, you cannot leak what it does not contain — but a previously shared original stays shared, so when in doubt, clean early.</p>
+<p class="text-zinc-300 mt-3 leading-relaxed">MetaPeel's promise is deliberately narrow and strong: it shows you the truth about a file, in plain language, with a privacy assessment and a map link when coordinates exist; it removes that hidden layer with one click, or a whole batch at once; and it does all of it locally, with no upload, no account and no record of your photos anywhere. Your pictures should tell the story you chose. Their metadata should not be telling a second, secret story underneath — peel it off, then share with confidence.</p>
+</article>
+<section class="mt-10">
+<h2 class="text-2xl font-bold">Frequently asked questions</h2>
+<div class="space-y-4 mt-4">
+<details class="panel p-4"><summary class="font-semibold cursor-pointer">What is EXIF data in a photo?</summary><p class="text-zinc-400 text-sm mt-2">EXIF is metadata stored inside JPEG and other image files by cameras and phones. It can include the device make and model, the date and time the photo was taken, software used to edit it, and — if location was enabled — precise GPS coordinates of where the photo was taken.</p></details>
+<details class="panel p-4"><summary class="font-semibold cursor-pointer">How does MetaPeel remove metadata from a photo?</summary><p class="text-zinc-400 text-sm mt-2">MetaPeel decodes your photo in your browser and re-encodes only the visible pixels onto a fresh canvas. Metadata segments such as EXIF, GPS and camera details are not part of the pixels, so they are left behind. The cleaned image you download contains the picture without the original metadata block.</p></details>
+<details class="panel p-4"><summary class="font-semibold cursor-pointer">Are my photos uploaded to a server?</summary><p class="text-zinc-400 text-sm mt-2">No. Everything happens locally in your browser. Your files are never uploaded, stored or sent to any server, which is why MetaPeel works well for private, legal, journalistic and family photos you would not want to hand to an unknown service.</p></details>
+<details class="panel p-4"><summary class="font-semibold cursor-pointer">Does removing EXIF data reduce photo quality?</summary><p class="text-zinc-400 text-sm mt-2">Re-encoding a JPEG applies a new round of compression, so there can be a very small quality change at default settings. The visual difference is normally imperceptible. If you need a pixel-perfect archive, keep your original master copy privately and share only the cleaned copy.</p></details>
+<details class="panel p-4"><summary class="font-semibold cursor-pointer">Can MetaPeel read GPS from every photo?</summary><p class="text-zinc-400 text-sm mt-2">MetaPeel reads GPS whenever a JPEG contains GPS EXIF tags. If a photo has no GPS tags — for example because location was off, or a messaging app already stripped it — MetaPeel will clearly say no location was found instead of guessing.</p></details>
+<details class="panel p-4"><summary class="font-semibold cursor-pointer">Can I strip metadata from many photos at once?</summary><p class="text-zinc-400 text-sm mt-2">Yes. Use the Batch Strip panel to select multiple images at once. MetaPeel re-encodes each one in your browser and gives you a cleaned download for every file, so you can prepare a whole folder of photos for publishing in one pass.</p></details>
+</div>
+</section>
+</main>
+<footer class="border-t border-zinc-700 py-6 text-center text-sm text-zinc-500">MetaPeel — see the hidden layer, then peel it off. Photos are processed only in your browser.</footer>
+<script id="lib-metapeel">
+var MetaPeelLib = (function () {
+  function isJpeg(bytes) {
+    if (!bytes || bytes.length < 2) return false;
+    return bytes[0] === 0xFF && bytes[1] === 0xD8;
+  }
+  function dmsToDecimal(dms, ref) {
+    if (!Array.isArray(dms) || dms.length === 0) return null;
+    var d = Number(dms[0]) || 0, m = Number(dms[1]) || 0, s = Number(dms[2]) || 0;
+    if (d < 0 || m < 0 || s < 0 || m >= 60 && dms[1] !== undefined) { /* allow out-of-range minutes as-is in math below */ }
+    var dec = Math.abs(d) + m / 60 + s / 3600;
+    if (d < 0) dec = -dec;
+    if (ref === 'S' || ref === 'W') dec = -Math.abs(dec);
+    if (ref === 'N' || ref === 'E') dec = Math.abs(dec);
+    return Math.round(dec * 1e7) / 1e7;
+  }
+  function parseExifDateTime(str) {
+    if (!str || typeof str !== 'string') return null;
+    var m = str.trim().match(/^(\d{4}):(\d{2}):(\d{2})[ ](\d{2}):(\d{2}):(\d{2})$/);
+    if (!m) return null;
+    var mo = parseInt(m[2], 10), d = parseInt(m[3], 10), h = parseInt(m[4], 10), mi = parseInt(m[5], 10), se = parseInt(m[6], 10);
+    if (mo < 1 || mo > 12 || d < 1 || d > 31 || h > 23 || mi > 59 || se > 59) return null;
+    return m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5] + ':' + m[6];
+  }
+  function buildMapLink(lat, lon) {
+    if (lat === null || lon === null || lat === undefined || lon === undefined) return null;
+    lat = Number(lat); lon = Number(lon);
+    if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+    return 'https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lon + '#map=15/' + lat + '/' + lon;
+  }
+  function formatGpsCoordinate(lat, lon) {
+    if (lat === null || lon === null || lat === undefined || lon === undefined) return null;
+    lat = Number(lat); lon = Number(lon);
+    if (isNaN(lat) || isNaN(lon)) return null;
+    var latRef = lat >= 0 ? 'N' : 'S', lonRef = lon >= 0 ? 'E' : 'W';
+    return Math.abs(lat).toFixed(6) + '\u00B0 ' + latRef + ', ' + Math.abs(lon).toFixed(6) + '\u00B0 ' + lonRef;
+  }
+  function strippedFileName(name) {
+    if (!name || typeof name !== 'string' || !name.trim()) return 'image-clean.jpg';
+    var clean = name.trim();
+    var dot = clean.lastIndexOf('.');
+    if (dot > 0) return clean.slice(0, dot) + '-clean' + clean.slice(dot);
+    return clean + '-clean.jpg';
+  }
+  function countMetadataFields(exif) {
+    if (!exif) return 0;
+    var n = 0;
+    var keys = ['make','model','software','datetime','datetimeOriginal','datetimeDigitized','artist','copyright','imageDescription','orientation','lensModel','pixelXDimension','pixelYDimension'];
+    keys.forEach(function (k) { if (exif[k] !== undefined && exif[k] !== null && exif[k] !== '') n++; });
+    if (exif.gps && exif.gps.latitude !== null && exif.gps.latitude !== undefined) n++;
+    if (exif.gps && exif.gps.longitude !== null && exif.gps.longitude !== undefined) n++;
+    if (exif.gps && exif.gps.altitude !== null && exif.gps.altitude !== undefined) n++;
+    return n;
+  }
+  function assessPrivacyRisk(exif) {
+    if (!exif) return { score: 0, level: 'none', findings: [] };
+    var score = 0, findings = [];
+    if (exif.gps && exif.gps.latitude !== null && exif.gps.latitude !== undefined && exif.gps.longitude !== null && exif.gps.longitude !== undefined) {
+      score += 50; findings.push('GPS location is embedded — anyone can pinpoint where this photo was taken.');
+    }
+    if (exif.datetimeOriginal || exif.datetime) { score += 15; findings.push('Capture date and time are embedded.'); }
+    if (exif.make || exif.model) { score += 15; findings.push('Camera or phone make and model are embedded.'); }
+    if (exif.software) { score += 10; findings.push('Editing software name is embedded.'); }
+    if (exif.artist || exif.copyright) { score += 10; findings.push('Author or copyright text is embedded.'); }
+    var level = score >= 50 ? 'high' : score >= 25 ? 'medium' : score > 0 ? 'low' : 'none';
+    return { score: score, level: level, findings: findings };
+  }
+  function hasGps(exif) {
+    return !!(exif && exif.gps && exif.gps.latitude !== null && exif.gps.latitude !== undefined && exif.gps.longitude !== null && exif.gps.longitude !== undefined);
+  }
+  var TYPE_SIZES = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8 };
+  function parseExif(bytes) {
+    if (!bytes || !isJpeg(bytes)) return null;
+    var view;
+    try { view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength); } catch (e) { return null; }
+    var offset = 2, exifStart = -1;
+    while (offset + 4 <= bytes.length) {
+      if (bytes[offset] !== 0xFF) break;
+      var marker = bytes[offset + 1];
+      if (marker === 0xDA || marker === 0xD9) break;
+      var segLen = view.getUint16(offset + 2, false);
+      if (segLen < 2) break;
+      if (marker === 0xE1 && offset + 10 <= bytes.length) {
+        var sig = '';
+        for (var i = 0; i < 4; i++) sig += String.fromCharCode(bytes[offset + 4 + i]);
+        if (sig === 'Exif' && bytes[offset + 8] === 0 && bytes[offset + 9] === 0) { exifStart = offset + 4; break; }
+      }
+      offset += 2 + segLen;
+    }
+    if (exifStart < 0) return null;
+    var tiff = exifStart + 6;
+    if (tiff + 8 > bytes.length) return null;
+    var little;
+    if (bytes[tiff] === 0x49 && bytes[tiff + 1] === 0x49) little = true;
+    else if (bytes[tiff] === 0x4D && bytes[tiff + 1] === 0x4D) little = false;
+    else return null;
+    if (view.getUint16(tiff + 2, little) !== 42) return null;
+    var firstIFD = view.getUint32(tiff + 4, little);
+    function readValue(entryOff) {
+      var type = view.getUint16(entryOff + 2, little);
+      var count = view.getUint32(entryOff + 4, little);
+      var size = (TYPE_SIZES[type] || 1) * count;
+      var valOff = size <= 4 ? entryOff + 8 : tiff + view.getUint32(entryOff + 8, little);
+      if (valOff + size > bytes.length && type !== 2) { /* still try ascii */ }
+      var j, num, den;
+      if (type === 2) {
+        var s = '';
+        for (j = 0; j < count; j++) { var c = bytes[valOff + j]; if (c === 0) break; s += String.fromCharCode(c); }
+        return s;
+      }
+      if (type === 3) { var shorts = []; for (j = 0; j < count; j++) shorts.push(view.getUint16(valOff + j * 2, little)); return count === 1 ? shorts[0] : shorts; }
+      if (type === 4) { var longs = []; for (j = 0; j < count; j++) longs.push(view.getUint32(valOff + j * 4, little)); return count === 1 ? longs[0] : longs; }
+      if (type === 9) { var sl = []; for (j = 0; j < count; j++) sl.push(view.getInt32(valOff + j * 4, little)); return count === 1 ? sl[0] : sl; }
+      if (type === 5) { var rats = []; for (j = 0; j < count; j++) { num = view.getUint32(valOff + j * 8, little); den = view.getUint32(valOff + j * 8 + 4, little); rats.push(den === 0 ? 0 : num / den); } return rats; }
+      if (type === 10) { var sr = []; for (j = 0; j < count; j++) { num = view.getInt32(valOff + j * 8, little); den = view.getInt32(valOff + j * 8 + 4, little); sr.push(den === 0 ? 0 : num / den); } return sr; }
+      if (type === 1 || type === 7) { var arr = []; for (j = 0; j < count; j++) arr.push(bytes[valOff + j]); return arr; }
+      return null;
+    }
+    function readIFD(relOff) {
+      var map = {};
+      if (!relOff) return map;
+      var off = tiff + relOff;
+      if (off + 2 > bytes.length) return map;
+      var n = view.getUint16(off, little);
+      for (var k = 0; k < n; k++) {
+        var eOff = off + 2 + k * 12;
+        if (eOff + 12 > bytes.length) break;
+        var tag = view.getUint16(eOff, little);
+        try { map[tag] = readValue(eOff); } catch (err) { map[tag] = null; }
+      }
+      return map;
+    }
+    var ifd0 = readIFD(firstIFD);
+    var result = { gps: { latitude: null, longitude: null, altitude: null } };
+    if (ifd0[0x010F]) result.make = String(ifd0[0x010F]);
+    if (ifd0[0x0110]) result.model = String(ifd0[0x0110]);
+    if (ifd0[0x0131]) result.software = String(ifd0[0x0131]);
+    if (ifd0[0x0132]) result.datetime = String(ifd0[0x0132]);
+    if (ifd0[0x010E]) result.imageDescription = String(ifd0[0x010E]);
+    if (ifd0[0x013B]) result.artist = String(ifd0[0x013B]);
+    if (ifd0[0x8298]) result.copyright = String(ifd0[0x8298]);
+    if (ifd0[0x0112] !== undefined && ifd0[0x0112] !== null) result.orientation = ifd0[0x0112];
+    if (ifd0[0x8769]) {
+      var exifIFD = readIFD(ifd0[0x8769]);
+      if (exifIFD[0x9003]) result.datetimeOriginal = String(exifIFD[0x9003]);
+      if (exifIFD[0x9004]) result.datetimeDigitized = String(exifIFD[0x9004]);
+      if (exifIFD[0xA434]) result.lensModel = String(exifIFD[0xA434]);
+      if (exifIFD[0xA002] !== undefined) result.pixelXDimension = exifIFD[0xA002];
+      if (exifIFD[0xA003] !== undefined) result.pixelYDimension = exifIFD[0xA003];
+    }
+    if (ifd0[0x8825]) {
+      var gpsIFD = readIFD(ifd0[0x8825]);
+      var latRef = gpsIFD[0x0001] ? String(gpsIFD[0x0001]) : 'N';
+      var lonRef = gpsIFD[0x0003] ? String(gpsIFD[0x0003]) : 'E';
+      if (Array.isArray(gpsIFD[0x0002])) result.gps.latitude = dmsToDecimal(gpsIFD[0x0002], latRef);
+      if (Array.isArray(gpsIFD[0x0004])) result.gps.longitude = dmsToDecimal(gpsIFD[0x0004], lonRef);
+      if (Array.isArray(gpsIFD[0x0006]) && gpsIFD[0x0006].length) {
+        var alt = gpsIFD[0x0006][0];
+        if (gpsIFD[0x0005] && gpsIFD[0x0005][0] === 1) alt = -alt;
+        result.gps.altitude = alt;
+      }
+      result.gps.latitudeRef = latRef; result.gps.longitudeRef = lonRef;
+    }
+    return result;
+  }
+  return {
+    isJpeg: isJpeg, dmsToDecimal: dmsToDecimal, parseExif: parseExif,
+    parseExifDateTime: parseExifDateTime, buildMapLink: buildMapLink,
+    formatGpsCoordinate: formatGpsCoordinate, strippedFileName: strippedFileName,
+    countMetadataFields: countMetadataFields, assessPrivacyRisk: assessPrivacyRisk, hasGps: hasGps
+  };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = MetaPeelLib;
+
+</script>
+<script>
+(function(){
+  var L = window.MetaPeelLib || MetaPeelLib;
+  var currentFile=null, cleanUrl=null;
+  var dz=document.getElementById('dropZone'), fi=document.getElementById('fileInput');
+  dz.addEventListener('click',function(){fi.click();});
+  dz.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();fi.click();}});
+  ['dragover','dragenter'].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.add('drag');});});
+  ['dragleave','drop'].forEach(function(ev){dz.addEventListener(ev,function(e){e.preventDefault();dz.classList.remove('drag');});});
+  dz.addEventListener('drop',function(e){var f=e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) loadFile(f);});
+  fi.addEventListener('change',function(){if(fi.files[0]) loadFile(fi.files[0]);});
+  function row(k,v){return '<tr class="border-b border-zinc-800"><td class="py-2 pr-3 text-zinc-400">'+k+'</td><td class="py-2 break-all">'+v+'</td></tr>';}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  async function loadFile(file){
+    currentFile=file;
+    document.getElementById('statusMsg').textContent='Reading '+file.name+' …';
+    document.getElementById('previewWrap').classList.remove('hidden');
+    document.getElementById('previewImg').src=URL.createObjectURL(file);
+    document.getElementById('fileMeta').textContent=file.name+' · '+(file.type||'unknown type')+' · '+(file.size/1024).toFixed(1)+' KB';
+    document.getElementById('stripBtn').disabled=false;
+    document.getElementById('downloadClean').classList.add('hidden');
+    document.getElementById('cleanNote').textContent='';
+    var exif=null;
+    try{ var buf=await file.arrayBuffer(); exif=L.parseExif(new Uint8Array(buf)); }catch(e){ exif=null; }
+    var body=document.getElementById('exifBody'); body.innerHTML='';
+    document.getElementById('emptyState').classList.add('hidden');
+    var gpsPanel=document.getElementById('gpsPanel'); gpsPanel.classList.add('hidden');
+    if(!exif){
+      body.innerHTML=row('EXIF block','None found — this file carries no readable JPEG EXIF segment. It may already be clean, or it may use a non-JPEG format.');
+      document.getElementById('riskBadge').textContent='RISK: NONE FOUND';
+      document.getElementById('findingsBox').classList.add('hidden');
+      document.getElementById('statusMsg').textContent='No EXIF block found in '+file.name+'. You can still re-encode it clean below.';
+      return;
+    }
+    var rows=[];
+    if(exif.make) rows.push(row('Make',esc(exif.make)));
+    if(exif.model) rows.push(row('Model',esc(exif.model)));
+    if(exif.datetime) rows.push(row('Date / time (file)',esc(exif.datetime)+(L.parseExifDateTime(exif.datetime)?' → '+L.parseExifDateTime(exif.datetime):'')));
+    if(exif.datetimeOriginal) rows.push(row('Date / time (original)',esc(exif.datetimeOriginal)));
+    if(exif.datetimeDigitized) rows.push(row('Date / time (digitised)',esc(exif.datetimeDigitized)));
+    if(exif.software) rows.push(row('Software',esc(exif.software)));
+    if(exif.artist) rows.push(row('Artist',esc(exif.artist)));
+    if(exif.copyright) rows.push(row('Copyright',esc(exif.copyright)));
+    if(exif.imageDescription) rows.push(row('Description',esc(exif.imageDescription)));
+    if(exif.lensModel) rows.push(row('Lens',esc(exif.lensModel)));
+    if(exif.orientation!==undefined) rows.push(row('Orientation',esc(exif.orientation)));
+    if(exif.pixelXDimension!==undefined) rows.push(row('Pixel dimensions',esc(exif.pixelXDimension)+' × '+esc(exif.pixelYDimension)));
+    if(rows.length===0) rows.push(row('EXIF block','Present, but no common fields could be read.'));
+    body.innerHTML=rows.join('');
+    if(L.hasGps(exif)){
+      gpsPanel.classList.remove('hidden');
+      document.getElementById('gpsText').textContent=L.formatGpsCoordinate(exif.gps.latitude,exif.gps.longitude)+'  ('+exif.gps.latitude+', '+exif.gps.longitude+')';
+      document.getElementById('mapLink').href=L.buildMapLink(exif.gps.latitude,exif.gps.longitude);
+    }
+    var risk=L.assessPrivacyRisk(exif);
+    var badge=document.getElementById('riskBadge');
+    badge.textContent='PRIVACY RISK: '+risk.level.toUpperCase()+' ('+risk.score+'/100) · '+L.countMetadataFields(exif)+' fields';
+    badge.className='mono text-xs px-2.5 py-1 rounded-full '+(risk.level==='high'?'bg-red-500 text-white':risk.level==='medium'?'bg-amber-400 text-zinc-900':'bg-zinc-700 text-zinc-200');
+    var fb=document.getElementById('findingsBox');
+    if(risk.findings.length){ fb.classList.remove('hidden'); document.getElementById('findingsList').innerHTML=risk.findings.map(function(f){return '<li>'+esc(f)+'</li>';}).join(''); }
+    else fb.classList.add('hidden');
+    document.getElementById('statusMsg').textContent='Parsed '+file.name+' — '+L.countMetadataFields(exif)+' metadata fields found. Strip them before sharing.';
+  }
+  function reencode(file){
+    return new Promise(function(resolve,reject){
+      var url=URL.createObjectURL(file); var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight;
+        var ctx=c.getContext('2d'); ctx.drawImage(img,0,0);
+        var type=(file.type==='image/png')?'image/png':'image/jpeg';
+        c.toBlob(function(b){ URL.revokeObjectURL(url); if(b) resolve({blob:b,type:type}); else reject(new Error('Encoding failed')); },type,0.92);
+      };
+      img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('Could not decode this image.'));};
+      img.src=url;
+    });
+  }
+  document.getElementById('stripBtn').addEventListener('click',async function(){
+    if(!currentFile) return;
+    var btn=this; btn.disabled=true; btn.textContent='Peeling…';
+    try{
+      var out=await reencode(currentFile);
+      if(cleanUrl) URL.revokeObjectURL(cleanUrl);
+      cleanUrl=URL.createObjectURL(out.blob);
+      var a=document.getElementById('downloadClean');
+      a.href=cleanUrl; a.download=L.strippedFileName(currentFile.name); a.classList.remove('hidden');
+      document.getElementById('cleanNote').textContent='Cleaned copy ready: '+a.download+' ('+(out.blob.size/1024).toFixed(1)+' KB). Re-encoded from pixels only — EXIF and GPS are not carried over. Verify anytime by loading the cleaned file back into this console.';
+      document.getElementById('statusMsg').textContent='Done. Original untouched on your device; cleaned copy ready to download.';
+    }catch(e){ document.getElementById('statusMsg').textContent='Sorry — '+e.message+' Try a standard JPEG, PNG or WebP photo.'; }
+    btn.disabled=false; btn.textContent='🧹 Strip metadata — 1 click';
+  });
+  // Batch
+  var batchFiles=[];
+  var bi=document.getElementById('batchInput');
+  bi.addEventListener('change',function(){
+    batchFiles=batchFiles.concat(Array.prototype.slice.call(bi.files)); renderBatch();
+  });
+  function renderBatch(){
+    var ul=document.getElementById('batchList'); ul.innerHTML='';
+    batchFiles.forEach(function(f,i){
+      var li=document.createElement('li');
+      li.className='flex flex-wrap items-center justify-between gap-2 bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-2';
+      li.innerHTML='<span class="mono text-xs break-all">'+esc(f.name)+' · '+(f.size/1024).toFixed(1)+' KB</span><span data-slot="'+i+'" class="text-xs text-zinc-400">queued</span>';
+      ul.appendChild(li);
+    });
+    document.getElementById('batchStripBtn').disabled=batchFiles.length===0;
+    document.getElementById('batchStatus').textContent=batchFiles.length?batchFiles.length+' file(s) in batch.':'No batch files yet.';
+  }
+  document.getElementById('batchClearBtn').addEventListener('click',function(){batchFiles=[];bi.value='';renderBatch();});
+  document.getElementById('batchStripBtn').addEventListener('click',async function(){
+    var btn=this; btn.disabled=true; var done=0;
+    for(var i=0;i<batchFiles.length;i++){
+      var slot=document.querySelector('[data-slot="'+i+'"]');
+      try{
+        var out=await reencode(batchFiles[i]);
+        var u=URL.createObjectURL(out.blob);
+        slot.innerHTML='<a class="text-lime-300 underline font-semibold" href="'+u+'" download="'+esc(L.strippedFileName(batchFiles[i].name))+'">⬇ '+esc(L.strippedFileName(batchFiles[i].name))+' — cleaned ('+(out.blob.size/1024).toFixed(1)+' KB)</a>';
+        done++;
+      }catch(e){ slot.textContent='failed — unsupported image'; }
+      document.getElementById('batchStatus').textContent='Stripped '+done+' / '+batchFiles.length+' files.';
+    }
+    btn.disabled=false;
+  });
+})();
+</script>
+</body>
+</html>
